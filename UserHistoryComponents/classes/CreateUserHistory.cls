@@ -1,12 +1,14 @@
 public with sharing class CreateUserHistory {
-    public void handleUpdatedUsers(){
+    public List<User_History__c> handleUpdatedUsers(){
+
+        //Get labels of the mdr types which correspond to the field api names.
         Set<String> fieldsToTrack = User_History_Fields__mdt.getAll().keySet();
         List<User_History__c> userHistoryInsertList = new List<User_History__c>();
         
         for(User user : (List<User>) Trigger.New){
             User oldUser = (User) Trigger.oldMap.get(user.Id);
-
             List<String> changedFieldsToRecord = new List<String>();
+
             for(String changedField : getChangedFields(oldUser, user)){
                 if(fieldsToTrack.contains(changedField)){
                     userHistoryInsertList.add(getUserHistory(changedField, user, oldUser));
@@ -14,18 +16,15 @@ public with sharing class CreateUserHistory {
             }
         }
         insert userHistoryInsertList;
+        return userHistoryInsertList;
     }
 
     private Set<String> getChangedFields(User oldRecord, User newRecord) {
         Set<String> changedFields = new Set<String>();
-        Set<String> fieldsToIgnore = new Set<String>{
-          'CreatedDate','LastModifiedById','LastModifiedDate','SystemModstamp'
-        };
 
         for (String populatedField : newRecord.getPopulatedFieldsAsMap().keySet()) {
-            if(fieldsToIgnore.contains(key)) continue;
             if(oldRecord.get(populatedField) != newRecord.get(populatedField)){
-                changedFields.add(key);
+                changedFields.add(populatedField);
             }
         }
         return changedFields;
