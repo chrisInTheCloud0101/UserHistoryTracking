@@ -20,7 +20,7 @@ private class CreateUserHistoryTest {
     }
 
     @isTest
-    private static void test_handle_updated_users(){
+    private static void user_history_is_created_when_field_updated(){
         
         User user = [SELECT ID, AboutMe FROM User WHERE FirstName = 'test'];
         
